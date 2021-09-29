@@ -277,3 +277,237 @@ ilhas_community_NMDS$stress
 # a distância mais similar.Temos a tabela montada (MDS_ilhas_xy) mostrando a 
 # dissimilaridade por linha. 
 
+
+
+############# NMDS com Medianas #############
+
+# É mediana ao invés de média pois a mediana leva menos em consideração os 
+# outliers do que a média. A mediana é menos sensível a eles, pois quando 
+# fazemos as distribuição vemos que é não normal, logo, o mais correto é fazer 
+# a mediana.
+
+# 'mean' = média
+# 'median' = mediana
+
+setwd("C:\\Users/manoe/Desktop/TCC/atual/Estatística/Analises_TCC/")
+dir()
+
+# Para fazer com os dados transformados ou normais (não transformados) basta 
+# trocar o nome da planilha selecionada aqui:
+ilhas <- read_excel(path = "data_transformed_Noronha_Rocas_final.xlsx",
+                    sheet = 1,
+                    range = "A1:M1879")
+
+ilhas <- data.frame(ilhas)
+
+
+## Mediana por transectos e profundidade.piscina
+med_ilhas <- ilhas %>%
+  group_by(ilha, ano, sitio, profundidade.piscina, transecto) %>%
+  summarise(med_calcificadores = median(calcificadores),
+            med_macroalgas = median(macroalgas),
+            med_MAE = median(MAE),
+            med_ciano = median(cianobacterias),
+            med_susp = median(suspensivoros.filtradores),
+            med_zoantideos = median(zoantideo)) %>%
+  data.frame()
+
+ilhas_community <- med_ilhas %>%
+  select(med_calcificadores, med_macroalgas, med_MAE, med_ciano, med_susp,
+         med_zoantideos) %>%
+  filter_all(any_vars(. != 0)) %>%
+  data.frame() # AQUI ESTA DANDO ERRADO. SE EU TIRO ESSE 'DATA.FRAME' UM OU 
+# OUTRO PONTO FICA MUDANDO DE LUGAR. ALGO QUE NÃO DEVERIA.
+
+
+linhas_sem_zero_all <- as.numeric(row.names(ilhas_community))
+
+med_ilhas <- med_ilhas[linhas_sem_zero_all,]
+
+
+ilhas_community_NMDS <- metaMDS(comm = ilhas_community,
+                                k = 2,
+                                distance = "bray",
+                                trace = F,
+                                autotransform = F)
+
+MDS_ilhas_xy <- data.frame(ilhas_community_NMDS$points)
+MDS_ilhas_xy$ano <- med_ilhas$ano
+MDS_ilhas_xy$ilha <- med_ilhas$ilha
+
+# ggplot(data = MDS_ilhas_xy,
+#       aes(x = MDS1, y = MDS2, color = ilha)) + 
+#    geom_point(size = 3) +
+#    theme_bw()
+
+# Salvando a imagem com resolução:
+png(filename = "C:\\Users/manoe/Desktop/plots/Finais/NMDS/transformado_transecto e profundidade.tipo de piscina.png",
+    width = 6*300,
+    height = 5*300,
+    res = 300,
+    pointsize = 8)
+
+# Gráfico propriamente dito:
+ggplot(data = MDS_ilhas_xy,
+       aes(x = MDS1, 
+           y = MDS2, 
+           color = as.character(ano))) + 
+  geom_point(aes(shape = ilha), 
+             size = 3) +
+  scale_color_brewer(palette = "Set1", 
+                     name = "Ano") +
+  labs(title = 'Rocas e Noronha por transecto com profundidade/tipo de piscina') +
+  annotate(geom = "text",
+           x = - 0.5,
+           y = 1,
+           label = paste0("Stress = ",
+                          round(ilhas_community_NMDS$stress,
+                                digits = 3)),
+           color = "black") +
+  theme_bw()
+
+# Finalizando a exportação da imagem:
+dev.off()
+
+
+## Mediana por transecto (sem profundidade.piscina):
+med_ilhas_transect <- ilhas %>%
+  group_by(ilha, ano, sitio, transecto) %>%
+  summarise(med_calcificadores = median(calcificadores),
+            med_macroalgas = median(macroalgas),
+            med_MAE = median(MAE),
+            med_ciano = median(cianobacterias),
+            med_susp = median(suspensivoros.filtradores),
+            med_zoantideos = median(zoantideo)) %>%
+  data.frame()
+
+ilhas_community_transect <- med_ilhas_transect %>%
+  select(med_calcificadores, med_macroalgas, med_MAE, med_ciano, med_susp,
+         med_zoantideos)%>%
+  filter_all(any_vars(. != 0)) %>%
+  data.frame() # AQUI ESTA DANDO ERRADO. SE EU TIRO ESSE 'DATA.FRAME' UM OU 
+# OUTRO PONTO FICA MUDANDO DE LUGAR. ALGO QUE NÃO DEVERIA.
+
+
+linhas_sem_zero_all <- as.numeric(row.names(ilhas_community_transect))
+
+med_ilhas_transect <- med_ilhas_transect[linhas_sem_zero_all,]
+
+
+
+ilhas_community_NMDS_transect <- metaMDS(comm = ilhas_community_transect,
+                                         k = 2,
+                                         distance = "bray",
+                                         trace = F,
+                                         autotransform = F)
+
+MDS_ilhas_xy_transect <- data.frame(ilhas_community_NMDS_transect$points)
+MDS_ilhas_xy_transect$ano <- med_ilhas_transect$ano
+MDS_ilhas_xy_transect$ilha <- med_ilhas_transect$ilha
+
+# ggplot(data = MDS_ilhas_xy_transect,
+#        aes(x = MDS1, y = MDS2, color = ilha)) + 
+#     geom_point(size = 3) +
+#     theme_bw()
+
+# Salvando a imagem com resolução:
+png(filename = "C:\\Users/manoe/Desktop/plots/Finais/NMDS/transformado_só transecto.png",
+    width = 6*300,
+    height = 5*300,
+    res = 300,
+    pointsize = 8)
+
+# Gráfico propriamente dito:
+ggplot(data = MDS_ilhas_xy_transect,
+       aes(x = MDS1, 
+           y = MDS2, 
+           color = as.character(ano))) + 
+  geom_point(aes(shape = ilha), 
+             size = 3) +
+  scale_color_brewer(palette = "Set1", 
+                     name = "Ano") +
+  labs(title = 'Rocas e Noronha por transecto (sem profundidade/tipo de piscina)') +
+  annotate(geom = "text",
+           x = -0.5,
+           y = 1,
+           label = paste0("Stress = ",
+                          round(ilhas_community_NMDS_transect$stress,
+                                digits = 3)),
+           color = "black") +
+  theme_bw()
+
+# Finalizando a exportação da imagem:
+dev.off()
+
+
+## Médianas por sítios:
+
+# Tive que remover transecto do argumento 'group_by' para fazer.
+
+med_ilhas_sitio <- ilhas %>%
+  group_by(ilha, ano, sitio) %>%
+  summarise(med_calcificadores = median(calcificadores),
+            med_macroalgas = median(macroalgas),
+            med_MAE = median(MAE),
+            med_ciano = median(cianobacterias),
+            med_susp = median(suspensivoros.filtradores),
+            med_zoantideos = median(zoantideo)) %>%
+  data.frame()
+
+ilhas_community_sitio <- med_ilhas_sitio %>%
+  select(med_calcificadores, med_macroalgas, med_MAE, med_ciano, med_susp,
+         med_zoantideos) %>%
+  filter_all(any_vars(. != 0)) %>%
+  data.frame() # AQUI ESTA DANDO ERRADO. SE EU TIRO ESSE 'DATA.FRAME' UM OU 
+# OUTRO PONTO FICA MUDANDO DE LUGAR. ALGO QUE NÃO DEVERIA.
+
+
+linhas_sem_zero_all <- as.numeric(row.names(ilhas_community_sitio))
+
+med_ilhas_sitio <- med_ilhas_sitio[linhas_sem_zero_all,]
+
+
+ilhas_community_NMDS_sitio <- metaMDS(comm = ilhas_community_sitio,
+                                      k = 2,
+                                      distance = "bray",
+                                      trace = F,
+                                      autotransform = F)
+
+MDS_ilhas_xy_sitio <- data.frame(ilhas_community_NMDS_sitio$points)
+MDS_ilhas_xy_sitio$ano <- med_ilhas_sitio$ano
+MDS_ilhas_xy_sitio$ilha <- med_ilhas_sitio$ilha
+
+# ggplot(data = MDS_ilhas_xy_sitio,
+#        aes(x = MDS1, y = MDS2, color = ilha)) + 
+#     geom_point(size = 3) +
+#     theme_bw()
+
+# Salvando a imagem com resolução:
+png(filename = "C:\\Users/manoe/Desktop/plots/Finais/NMDS/transformado_sítio.png",
+    width = 6*300,
+    height = 5*300,
+    res = 300,
+    pointsize = 8)
+
+ggplot(data = MDS_ilhas_xy_sitio,
+       aes(x = MDS1, 
+           y = MDS2, 
+           color = as.character(ano))) + 
+  geom_point(aes(shape = ilha), 
+             size = 3) +
+  scale_color_brewer(palette = "Set1", 
+                     name = "Ano") +
+  labs(title = 'Rocas e Noronha por sítio') +
+  annotate(geom = "text",
+           x = -0.3,
+           y = 1,
+           label = paste0("Stress = ",
+                          round(ilhas_community_NMDS_sitio$stress,
+                                digits = 3)),
+           color = "black") +
+  theme_bw()
+
+# Finalizando a exportação da imagem:
+dev.off()
+
+
