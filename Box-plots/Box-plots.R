@@ -3,8 +3,9 @@
 install.packages("scales")
 library(readxl)
 library(scales)
+library(dplyr)
 
-setwd("C:\\Users/manoe/Desktop/TCC/atual/Estatística/Análises")
+setwd("C:\\Users/manoe/Desktop/TCC/atual/Estatística/Analises_TCC/")
 dir()
 
 
@@ -124,12 +125,31 @@ class(Rocas)
 
 ### GRÁFICOS DAS DUAS ILHAS (FINAIS) 
 
+
+# Para ver valores referentes ao box-plots (média, mediana, 1o e 3o quartil, máx
+# e mín, etc):
+summary(Rocas)
+summary(Noronha)
+# Dessa forma ele mostra no geral (sem separar por anos).
+
+Noronha %>%
+  filter(ano == 2016) %>%
+  summary()
+# Filtrando por ano (é só ir mudando o ano para saber cada qual)
+
+Rocas %>%
+  filter(ano == 2016) %>%
+  summary()
+
+
 ## MAE
 
 # Exportando a imagem com qualidade (tem que colocar aqui no começo):
 png(filename = "C:\\Users/manoe/Desktop/plots/Finais/Box-plot/MAE.png",
     width = 1000,
-    height = 800)
+    height = 500)
+# Se eu quiser o gráfico alto utilizar 'height = 800', caso eu queira mais 
+# quadrado utilizar 'height = 500'.
 
 # Dividindo a tela do plot para parear os gráficos
 # par(mfrow=c(1, 2)) #ANTIGO
@@ -158,6 +178,14 @@ stripchart(MAE ~ ano,
            vertical = TRUE,
            add = TRUE)
 
+# Para colocar a identificação por letras para criar a legenda na monografia:
+legend(legend = "(A)",
+       x = -0.2,
+       y = 107,
+       text.col = "black",
+       cex = 1.3,
+       bty = "n")
+
 # Rocas:
 boxplot(MAE ~ ano,
         data = Rocas,
@@ -174,6 +202,12 @@ stripchart(MAE ~ ano,
            col= alpha("khaki1", 0.5),
            vertical = TRUE,
            add = TRUE)
+legend(legend = "(B)",
+       x = -0.2,
+       y = 107,
+       text.col = "black",
+       cex = 1.3,
+       bty = "n")
 
 # Ajustes visuais ("maquiagem")
 mtext(text = "MAE",
@@ -197,7 +231,7 @@ dev.off()
 # Exportando a imagem com qualidade (tem que colocar aqui no começo):
 png(filename = "C:\\Users/manoe/Desktop/plots/Finais/Box-plot/Macroalga.png",
     width = 1000,
-    height = 800)
+    height = 500)
 
 # Dividindo a tela do plot para parear os gráficos
 oldpar <- par(mfrow=c(1,2), #NOVO (feito na Aula 8)
@@ -220,6 +254,12 @@ stripchart(macroalgas ~ ano,
            col= alpha("forestgreen", 0.5),
            vertical = TRUE,
            add = TRUE)
+legend(legend = "(C)",
+       x = -0.2,
+       y = 107,
+       text.col = "black",
+       cex = 1.3,
+       bty = "n")
 
 # Rocas:
 boxplot(macroalgas ~ ano,
@@ -237,6 +277,12 @@ stripchart(macroalgas ~ ano,
            col= alpha("darkolivegreen1", 0.5),
            vertical = TRUE,
            add = TRUE)
+legend(legend = "(D)",
+       x = -0.2,
+       y = 107,
+       text.col = "black",
+       cex = 1.3,
+       bty = "n")
 
 # Ajustes visuais ("maquiagem")
 mtext(text = "Macroalgas",
@@ -260,7 +306,7 @@ dev.off()
 # Exportando a imagem com qualidade (tem que colocar aqui no começo):
 png(filename = "C:\\Users/manoe/Desktop/plots/Finais/Box-plot/Calcificadores.png",
     width = 1000,
-    height = 800)
+    height = 500)
 
 # Dividindo a tela do plot para parear os gráficos
 oldpar <- par(mfrow=c(1,2), #NOVO (feito na Aula 8)
@@ -282,6 +328,12 @@ stripchart(calcificadores ~ ano,
            col= alpha("deeppink1", 0.5),
            vertical = TRUE,
            add = TRUE)
+legend(legend = "(E)",
+       x = -0.2,
+       y = 107,
+       text.col = "black",
+       cex = 1.3,
+       bty = "n")
 
 # Rocas:
 boxplot(calcificadores ~ ano,
@@ -299,6 +351,12 @@ stripchart(calcificadores ~ ano,
            col= alpha("pink", 0.5),
            vertical = TRUE,
            add = TRUE)
+legend(legend = "(F)",
+       x = -0.2,
+       y = 107,
+       text.col = "black",
+       cex = 1.3,
+       bty = "n")
 
 # Ajustes visuais ("maquiagem")
 mtext(text = "Calcificadores",
@@ -323,7 +381,7 @@ dev.off()
 # Exportando a imagem com qualidade (tem que colocar aqui no começo):
 png(filename = "C:\\Users/manoe/Desktop/plots/Finais/Box-plot/Cianobacterias.png",
     width = 1000,
-    height = 800)
+    height = 500)
 
 # Dividindo a tela do plot para parear os gráficos
 oldpar <- par(mfrow=c(1,2), #NOVO (feito na Aula 8)
@@ -346,6 +404,12 @@ stripchart(cianobacterias ~ ano,
            col= alpha("dodgerblue2", 0.5),
            vertical = TRUE,
            add = TRUE)
+legend(legend = "(G)",
+       x = -0.2,
+       y = 107,
+       text.col = "black",
+       cex = 1.3,
+       bty = "n")
 
 # Rocas:
 boxplot(cianobacterias ~ ano,
@@ -363,6 +427,12 @@ stripchart(cianobacterias ~ ano,
            col= alpha("cadetblue1", 0.5),
            vertical = TRUE,
            add = TRUE)
+legend(legend = "(H)",
+       x = -0.2,
+       y = 107,
+       text.col = "black",
+       cex = 1.3,
+       bty = "n")
 
 # Ajustes visuais ("maquiagem")
 mtext(text = "Cianobactérias",
@@ -386,7 +456,7 @@ dev.off()
 # Exportando a imagem com qualidade (tem que colocar aqui no começo):
 png(filename = "C:\\Users/manoe/Desktop/plots/Finais/Box-plot/Zoantideos.png",
     width = 1000,
-    height = 800)
+    height = 500)
 
 # Dividindo a tela do plot para parear os gráficos
 oldpar <- par(mfrow=c(1,2), #NOVO (feito na Aula 8)
@@ -409,6 +479,12 @@ stripchart(zoantideo ~ ano,
            col= alpha("mediumorchid", 0.5),
            vertical = TRUE,
            add = TRUE)
+legend(legend = "(I)",
+       x = -0.2,
+       y = 53.5,
+       text.col = "black",
+       cex = 1.3,
+       bty = "n")
 
 # Rocas:
 boxplot(zoantideo ~ ano,
@@ -426,6 +502,12 @@ stripchart(zoantideo ~ ano,
            col= alpha("orchid1", 0.5),
            vertical = TRUE,
            add = TRUE)
+legend(legend = "(J)",
+       x = -0.2,
+       y = 53.5,
+       text.col = "black",
+       cex = 1.3,
+       bty = "n")
 
 # Ajustes visuais ("maquiagem")
 mtext(text = "Zoantídeos",
@@ -450,7 +532,7 @@ dev.off()
 # Exportando a imagem com qualidade (tem que colocar aqui no começo):
 png(filename = "C:\\Users/manoe/Desktop/plots/Finais/Box-plot/Suspensívoros e Filtradores.png",
     width = 1000,
-    height = 800)
+    height = 500)
 
 # Dividindo a tela do plot para parear os gráficos
 oldpar <- par(mfrow=c(1,2), #NOVO (feito na Aula 8)
@@ -473,6 +555,12 @@ stripchart(suspensivoros.filtradores ~ ano,
            col= alpha("orange", 0.5),
            vertical = TRUE,
            add = TRUE)
+legend(legend = "(K)",
+       x = -0.2,
+       y = 53.5,
+       text.col = "black",
+       cex = 1.3,
+       bty = "n")
 
 # Rocas:
 boxplot(suspensivoros.filtradores ~ ano,
@@ -490,6 +578,12 @@ stripchart(suspensivoros.filtradores ~ ano,
            col= alpha("tan1", 0.5),
            vertical = TRUE,
            add = TRUE)
+legend(legend = "(L)",
+       x = -0.2,
+       y = 53.5,
+       text.col = "black",
+       cex = 1.3,
+       bty = "n")
 
 # Ajustes visuais ("maquiagem")
 mtext(text = "Suspensívoros e Filtradores",
