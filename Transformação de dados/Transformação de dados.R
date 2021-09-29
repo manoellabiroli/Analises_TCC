@@ -126,7 +126,7 @@ ilhas_trans_med <- ilhas %>%
 # medianicos" (para que eu sempre que for fazer um teste estatístico possa dar 
 # de entrada essa planilha ao invés de ficar transformando tudo de novo).
 write.xlsx(x = ilhas_trans,
-           file = "C:\\Users/manoe/Desktop/TCC/Atual/Estatística/Analises_TCC//data_transformed_Noronha_Rocas_final.xlsx",
+           file = "C:\\Users/manoe/Desktop/TCC/Atual/Estatística/Analises_TCC/data_transformed_Noronha_Rocas_final.xlsx",
            sheetName = "arcoseno da raíz quadrada",
            col.names = T,
            row.names = F)
