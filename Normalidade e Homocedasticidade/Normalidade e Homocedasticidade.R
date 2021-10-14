@@ -10,8 +10,20 @@ library(ggplot2)
 setwd("C:\\Users/manoe/Desktop/TCC/atual/Estatística/Analises_TCC/")
 dir()
 
-ilhas <- read_excel("data_Noronha_Rocas_final.xlsx",
+# ilhas <- read_excel("data_Noronha_Rocas_final.xlsx",
+#                     range = "A1:M1879")
+
+ilhas <- read_excel("data_transformed_Noronha_Rocas_final.xlsx",
                     range = "A1:M1879")
+
+# COM DADOS TRANSFORMADOS: basta substituir a planilha a cima para a planilha que
+# contem os dados transformados.
+
+# É interessante depois de transformar olhar os histogramas para ver como ficou 
+# a cara do dado e se a transformação é interessante mesmo de ser feita.
+
+# A transformação pode ser para que os dados se encaixem na normalidade e 
+# homocedasticidade, mas não é só para isso.
 
 ilhas <- data.frame(ilhas)
 class(ilhas)
@@ -119,6 +131,8 @@ shapiro.test(macr_noronha_ANOVA$residuals)
 # Através do gráfico:
 qqPlot(macr_noronha_ANOVA$residuals,
        id = F)
+plot(macr_noronha_ANOVA,
+     which = 2)
 
 # Através do teste de Levene:
 leveneTest(macroalgas ~ ano,
@@ -148,6 +162,8 @@ shapiro.test(cal_noronha_ANOVA$residuals)
 # Através do gráfico:
 qqPlot(cal_noronha_ANOVA$residuals,
        id = F)
+plot(cal_noronha_ANOVA,
+     which = 2)
 
 # Através do teste de Levene:
 leveneTest(calcificadores ~ ano,
@@ -176,12 +192,72 @@ shapiro.test(ciano_noronha_ANOVA$residuals)
 # Através do gráfico:
 qqPlot(ciano_noronha_ANOVA$residuals,
        id = F)
+plot(ciano_noronha_ANOVA,
+     which = 2)
 
 # Através do teste de Levene:
 leveneTest(cianobacterias ~ ano,
            data = ciano_noronha)
 
 
+##################### Suspensívoros e filtradores
+
+# ANOVA univariada
+sf_noronha <- ilhas %>%
+  filter(ilha == "noronha") %>%
+  dplyr::select(ano, suspensivoros.filtradores)
+
+sf_noronha$ano <- as.factor(sf_noronha$ano)
+
+sf_noronha_ANOVA <- aov(suspensivoros.filtradores ~ ano,
+                           data = sf_noronha)
+
+## Normalidade
+hist(sf_noronha_ANOVA$residuals)
+shapiro.test(sf_noronha_ANOVA$residuals)
+# Não normal (p < 0,05); p = 2.2e-16
+
+## Homocedasticidade
+
+# Através do gráfico:
+qqPlot(sf_noronha_ANOVA$residuals,
+       id = F)
+plot(sf_noronha_ANOVA,
+     which = 2)
+
+# Através do teste de Levene:
+leveneTest(suspensivoros.filtradores ~ ano,
+           data = sf_noronha)
+
+
+##################### Zoantídeos
+
+# ANOVA univariada
+zoa_noronha <- ilhas %>%
+  filter(ilha == "noronha") %>%
+  dplyr::select(ano, zoantideo)
+
+zoa_noronha$ano <- as.factor(zoa_noronha$ano)
+
+zoa_noronha_ANOVA <- aov(zoantideo ~ ano,
+                        data = zoa_noronha)
+
+## Normalidade
+hist(zoa_noronha_ANOVA$residuals)
+shapiro.test(zoa_noronha_ANOVA$residuals)
+# Não normal (p < 0,05); p = 2.2e-16
+
+## Homocedasticidade
+
+# Através do gráfico:
+qqPlot(zoa_noronha_ANOVA$residuals,
+       id = F)
+plot(zoa_noronha_ANOVA,
+     which = 2)
+
+# Através do teste de Levene:
+leveneTest(zoantideo ~ ano,
+           data = zoa_noronha)
 
 ######################### ATOL DAS ROCAS
 ##################### MAE
@@ -202,7 +278,7 @@ ggplot(mae_rocas) +
 mae_rocas_ANOVA <- aov(MAE ~ ano,
                        data = mae_rocas)
 
-## Notmalidade:
+## Normalidade:
 hist(mae_rocas_ANOVA$residuals)
 shapiro.test(mae_rocas_ANOVA$residuals)
 
@@ -298,4 +374,3 @@ qqPlot(ciano_rocas_ANOVA$residuals,
 # Através do teste de Levene:
 leveneTest(cianobacterias ~ ano,
            data = ciano_rocas)
-
