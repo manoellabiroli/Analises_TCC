@@ -2,6 +2,8 @@
 
 # Pro R apagar só um objeto no environment usar função (limpar o environment):
 # 'rm(objeto que eu quero que ele apague)'
+# Pro R apagar todos os objetos do environment usar:
+# 'rm(list = ls())
 
 # Pro R ler as planilhas do excel sem ter que converter em csv precisa baixar e
 # instalar o pacote 'readxl'.
