@@ -164,6 +164,7 @@ ilhas_beta <- cbind(ilhas[1:7], # colocando as colunas descritivas na tabela tra
 
 # Fazendo com modelo beta
 modelo_beta <- fitdist(data = ilhas_beta$calcificadores, # um objeto com esse modelo.
+                       lower = c(0,0),
                        distr = "beta",
                        method = "mle") # maximum likelihood estimation (método 
 # que é "golden standard" pra esse tipo
@@ -175,6 +176,11 @@ plot(modelo_beta)
 # O Q-Q plot tem o empírico, que é o que observei, e o teorico, que é o ideal 
 # do modelo. O desejo é que o empírico caia sobre o teorico, ou pelo menos que o 
 # empirico seja bem parecido com o teorico.
+# Os zoantídeos deu erro para cacular o modelo beta, então tive de adicionar um
+# parâmetro a mais, que é o 'lower'. Adicionar esse parâmetro não altera nada dos
+# demais grupos que já estava dando certo.
+# Referência desse parâmetro amais no link: https://stats.stackexchange.com/questions/158163/why-does-this-data-throw-an-error-in-r-fitdistr
+
 
 # Fazendo com modelo gamma
 modelo_gamma <- fitdist(data = ilhas_beta$calcificadores,
