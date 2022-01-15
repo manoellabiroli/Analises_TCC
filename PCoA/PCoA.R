@@ -72,6 +72,8 @@ library(readxl)
 library(dplyr)
 library(vegan)
 library(ape)
+library(RColorBrewer) # pacote para mudar as cores dos polígonos
+# link das paletas disponíveis: https://www.nceas.ucsb.edu/sites/default/files/2020-04/colorPaletteCheatsheet.pdf 
 
 setwd("C:\\Users/manoe/Desktop/TCC/Atual/Estatística/Analises_TCC")
 dir()
@@ -146,6 +148,8 @@ f_ilha <- data.frame(fator2)
 
 # Escolher o tipo de ponto
 ?pch # 21 é bolinha pintável e 22 é o quadradinho pintável.
+     # 24 é triângulo pintável para cima.
+     # 3 é '+' e 4 'x'.
 
 # Função 'table' para contagem do que eu desejo
 # Função 'rep' para repetir 
@@ -246,7 +250,9 @@ wascores_text_position <- data.frame(x = c(ilhas_wascores["CAL", "Axis.1"] - pas
 
 ## Criar um vetor para as cores dos polígonos
 cores <- rainbow(nlevels(f_ano$fator1)) # colocar entre parenteses o número de
-# fatores que eu possuo.
+                                        # fatores que eu possuo.
+# cores <- brewer.pal(n = nlevels(f_ano$fator1),
+#                     name = "Pastel2") # mudando as cores dos polígonos
 
 ## Gráfico propriamente dito:
 plot(ilhas_PCoA$vectors[,1:2], # pegando quais eixos calculados na PCoA eu quero,
@@ -421,3 +427,198 @@ text(wascores_text_position, # coordenada de onde ficará o texto no gráfico (q
 # cor é a outra ilha. Ex: O polígono verde é o agrupamento de todos os anos de Rocas 
 # e o polígono cinza é Noronha.
 # Pra facilitar o leitor de ver todos os dados referentes a Noronha/Rocas.
+
+
+#### Fazendo a PCoA em painel 
+
+## Como o painel será salvo:
+png(filename = "C:\\Users/manoe/Desktop/TCC/Atual/Estatística/Gráficos/PCoA/Painel com ambos os gráficos/Painel.png",
+    width = 8*300,
+    height = 10*300,
+    res = 300)
+
+## Para ficar uma figura em cima da outra:
+par(mfrow = c(2,1), # 'mfrow' significa que estou passando em forma de linha; a ordem que eu estou dando para ele montar (para coluna é 'mfcol').
+    mar = c(4, 4, 1.2, 0.5)) # margens (reduzi um pouco a margem entre os gráficos).
+
+
+### PLOTANDO O GRÁFICO A (polígonos = anos):
+
+## Criar um vetor para as cores dos polígonos
+cores <- rainbow(nlevels(f_ano$fator1)) # colocar entre parenteses o número de
+# fatores que eu possuo.
+
+## Gráfico propriamente dito:
+plot(ilhas_PCoA$vectors[,1:2], # pegando quais eixos calculados na PCoA eu quero,
+     # no caso, só os 2 que explique mais meu dado, logo,
+     # coluna 1 e 2 e todas suas linhas.
+     las = 1, # parâmetro que deixa o eixo x e y horizontais.
+     type = "n", # parâmetro que tira os pontos para os poligonos serem plotados antes.
+     xlab = paste0("PCoA1 = ", # legendas dos eixos 1 e 2.
+                   round(expl_x,
+                         digits = 4) * 100,  # multiplicando por 100 pra ficar em porcentagem.
+                   "%"),
+     ylab = paste0("PCoA2 = ",
+                   round(expl_y,
+                         digits = 4) * 100,
+                   "%"),
+     main = "")
+
+## Fazer as formas/polígonos ligando as amostras (com a função 'ordihull' e 
+# usando o 'for').
+# Fazendo os polígonos por ano (um pra cada ano, portanto, 7 polígonos):
+for(i in 1:nlevels(f_ano$fator1)){
+  ordihull(ord = ilhas_PCoA$vectors[,1:2], # os vetores da PCoA (os dois eixos/
+           # colunas e todas as linhas).
+           groups = f_ano$fator1, # um dos dois fatores (aqui no caso 'anos').
+           draw = "polygon", # para desenhar os polígonos ligando os pontos.
+           border = cores, # a cor da borda do polígono; fica preta se não específicar aqui.
+           show.groups = levels(f_ano$fator1)[i], # 'i' para cada ano fazer um polígono.
+           col = cores) # a cor do preenchimento do polígono.
+}
+
+## Colocar os pontos no gráfico (sobre os polígonos):
+points(x = ilhas_PCoA$vectors[,1:2], # a matriz de dados é a mesma; o que ele vai
+       # plotar vem da mesma coisa.
+       pch = shapes, # já preparado anteriormente quando transformei ano e ilha em fator.
+       bg = cores[c(f_ano$fator1)])
+
+## Fazendo as legendas:
+legend("topright", # local que a legenda será escrita no gráfico.
+       legend = levels(f_ano$fator1), # a função e o argumento tem o mesmo nome.
+       text.col = cores, # cada escrito de ano ficar da cor do respectivo polígono.
+       cex = 0.9, # tamanho da legenda
+       bty = "n") # tirar a caixa de enquadramento da legenda.
+
+legend("topleft",
+       legend = levels(f_ilha$fator2),
+       text.col = "black",
+       cex = 1,
+       pch = unique(shapes), # tomar cuidado se os pchs vem na ordem dos locais mesmo.
+       bty = "n")
+
+## Colocando a linha horizontal e vertical cruzando o zero dos eixos:
+abline(h = 0, # hotizontal.
+       lty = 3) # line type.
+abline(v = 0, # vertical.
+       lty = 3)
+
+## Colocando a letra para identificar o gráfico no painel:
+mtext(text = "A",
+      side = 3, # o lado da letra no gráfico; começa por baixo e roda sentido horário.
+      line = 0,
+      at = -0.36, # local do eixo x.
+      font = 2, # tipo da fonte ('1'= fonte normal; '2'= bolt; '3'= itálico; '4'= itálico e bolt).
+      cex = 1.2) # tamanho da letra.
+
+## Colocando as setas dos vetores:
+# (o cálculo foi feito préviamente, mas só se usa o já calculado previamente
+# aqui no final na hora de plotar o gráfico pois esse gráfico é feito em camadas 
+# e as últimas duas coisas que eu quero que vá são os vetores e seus respectivos
+# nomes).
+arrows(x0 = 0, # a origem é o zero; todas começam no zero e de lá faz a seta.
+       y0 = 0,
+       x1 = ilhas_wascores[,1], # primeira coluna do 'ilhas_wascores' e todas linhas.
+       y1 = ilhas_wascores[,2], # segunda coluna do 'ilhas_wascores' e todas linhas.
+       length = 0.05, # a espessura da seta.
+       col = "black",
+       lty = 1)
+
+## Colocando nome nas setas dos vetores:
+text(wascores_text_position, # coordenada de onde ficará o texto no gráfico (que
+     # eu yambém fiz previamente antes de plotar o gráfico).
+     rownames(ilhas_wascores),
+     cex = 0.8,
+     col = "black")
+
+
+### PLOTANDO O GRÁFICO B (polígonos = ilhas):
+
+## Criar um vetor para as cores dos polígonos
+cores <- rainbow(nlevels(f_ano$fator1)) # colocar entre parenteses o número de
+# fatores que eu possuo.
+
+## Gráfico propriamente dito:
+plot(ilhas_PCoA$vectors[,1:2], # pegando quais eixos calculados na PCoA eu quero,
+     # no caso, só os 2 que explique mais meu dado, logo,
+     # coluna 1 e 2 e todas suas linhas.
+     las = 1, # parâmetro que deixa o eixo x e y horizontais.
+     type = "n", # parâmetro que tira os pontos para os poligonos serem plotados antes.
+     xlab = paste0("PCoA1 = ", # legendas dos eixos 1 e 2.
+                   round(expl_x,
+                         digits = 4) * 100,  # multiplicando por 100 pra ficar em porcentagem.
+                   "%"),
+     ylab = paste0("PCoA2 = ",
+                   round(expl_y,
+                         digits = 4) * 100,
+                   "%"),
+     main = "")
+
+## Fazer as formas/polígonos ligando as amostras (com a função 'ordihull' e 
+# usando o 'for')
+# Fazendo os polígonos por ilha (um pra cada ilha, portanto, 2 polígonos):
+for(i in 1:nlevels(f_ilha$fator2)){
+  ordihull(ord = ilhas_PCoA$vectors[,1:2],
+           groups = f_ilha$fator2, # um dos dois fatores (aqui no caso 'ilha')
+           draw = "polygon",
+           border = c("gray", "darkgreen"),
+           show.groups = levels(f_ilha$fator2)[i],
+           col = c("gray", "darkgreen"))
+}
+
+## Colocar os pontos no gráfico (sobre os polígonos):
+points(x = ilhas_PCoA$vectors[,1:2], # a matriz de dados é a mesma; o que ele vai
+       # plotar vem da mesma coisa.
+       pch = shapes, # já preparado anteriormente quando transformei ano e ilha em fator.
+       bg = cores[c(f_ano$fator1)])
+
+## Fazendo as legendas:
+legend("topright", # local que a legenda será escrita no gráfico.
+       legend = levels(f_ano$fator1), # a função e o argumento tem o mesmo nome.
+       text.col = cores, # cada escrito de ano ficar da cor do respectivo polígono.
+       cex = 0.9, # tamanho da legenda
+       bty = "n") # tirar a caixa de enquadramento da legenda.
+
+legend("topleft",
+       legend = levels(f_ilha$fator2),
+       text.col = "black",
+       cex = 1,
+       pch = unique(shapes), # tomar cuidado se os pchs vem na ordem dos locais mesmo.
+       bty = "n")
+
+## Colocando a linha horizontal e vertical cruzando o zero dos eixos:
+abline(h = 0, # hotizontal.
+       lty = 3) # line type.
+abline(v = 0, # vertical.
+       lty = 3)
+
+## Colocando a letra para identificar o gráfico no painel:
+mtext(text = "B",
+      side = 3,
+      line = 0,
+      at = -0.36,
+      font = 2,
+      cex = 1.2)
+
+## Colocando as setas dos vetores:
+# (o cálculo foi feito préviamente, mas só se usa o já calculado previamente
+# aqui no final na hora de plotar o gráfico pois esse gráfico é feito em camadas 
+# e as últimas duas coisas que eu quero que vá são os vetores e seus respectivos
+# nomes).
+arrows(x0 = 0, # a origem é o zero; todas começam no zero e de lá faz a seta.
+       y0 = 0,
+       x1 = ilhas_wascores[,1], # primeira coluna do 'ilhas_wascores' e todas linhas.
+       y1 = ilhas_wascores[,2], # segunda coluna do 'ilhas_wascores' e todas linhas.
+       length = 0.05, # a espessura da seta.
+       col = "black",
+       lty = 1)
+
+## Colocando nome nas setas dos vetores:
+text(wascores_text_position, # coordenada de onde ficará o texto no gráfico (que
+     # eu yambém fiz previamente antes de plotar o gráfico).
+     rownames(ilhas_wascores),
+     cex = 0.8,
+     col = "black")
+
+
+dev.off()
